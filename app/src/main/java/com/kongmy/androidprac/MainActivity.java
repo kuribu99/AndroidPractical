@@ -1,5 +1,6 @@
 package com.kongmy.androidprac;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -10,8 +11,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.jamesooi.geometry.Line;
-import com.jamesooi.geometry.Point;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
                                            final Snackbar snackbar = Snackbar.make(
                                                    view,
-                                                   "Please fill up all the coordinates for point 1 and point 2",
+                                                   "Please fill up all the coordinates for \nPoint 1 and Point 2",
                                                    Snackbar.LENGTH_LONG);
 
                                            snackbar.setAction("Dismiss", new View.OnClickListener() {
@@ -62,21 +69,28 @@ public class MainActivity extends AppCompatActivity {
                                            snackbar.show();
 
                                        } else {
-                                           Point p1 = new Point(
-                                                   Double.parseDouble(tbxP1X.getText().toString()),
-                                                   Double.parseDouble(tbxP1Y.getText().toString()));
+                                           HttpAsyncTask task = new HttpAsyncTask();
+                                           try {
+                                               String result = task.execute(
+                                                       tbxP1X.getText().toString(),
+                                                       tbxP1Y.getText().toString(),
+                                                       tbxP2X.getText().toString(),
+                                                       tbxP2Y.getText().toString()).get();
 
-                                           Point p2 = new Point(
-                                                   Double.parseDouble(tbxP2X.getText().toString()),
-                                                   Double.parseDouble(tbxP2Y.getText().toString()));
+                                               if (result == null || result.isEmpty() || result.equals("null")) {
+                                                   tbxMidX.setText("-");
+                                                   tbxMidY.setText("-");
+                                               }
+                                               JSONObject obj = new JSONObject(result);
+                                               tbxMidX.setText(String.format("%.3f", obj.getDouble("x")));
+                                               tbxMidY.setText(String.format("%.3f", obj.getDouble("y")));
 
-                                           Line line = new Line();
-                                           line.setP1(p1);
-                                           line.setP2(p2);
+                                           } catch (Exception e) {
+                                               e.printStackTrace();
 
-                                           Point mid = line.getMidPoint();
-                                           tbxMidX.setText(String.format("%.3f", mid.getX()));
-                                           tbxMidY.setText(String.format("%.3f", mid.getY()));
+                                               tbxMidX.setText("-");
+                                               tbxMidY.setText("-");
+                                           }
 
                                            final Snackbar snackbar = Snackbar.make(
                                                    view,
@@ -116,4 +130,46 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            if (strings.length != 4) return null;
+            String param = String.format(
+                    "p1x=%s&p1y=%s&p2x=%s&p2y=%s",
+                    strings[0], strings[1],
+                    strings[2], strings[3]
+            );
+            try {
+                URL url = new URL("http://192.168.56.2:8080/midpoint");
+
+                HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+                httpConn.setAllowUserInteraction(false);
+                httpConn.setInstanceFollowRedirects(true);
+                httpConn.setDoInput(true);
+                httpConn.setDoOutput(true);
+                httpConn.setRequestMethod("POST");
+
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(httpConn.getOutputStream()));
+                writer.write(param);
+                writer.flush();
+                writer.close();
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
+                StringBuilder builder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    builder.append(line).append("\n");
+                }
+
+                return builder.toString();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
 }
