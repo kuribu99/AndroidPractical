@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 
 import org.json.JSONObject;
 
@@ -22,12 +23,12 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextInputEditText tbxP1X;
-    private TextInputEditText tbxP1Y;
-    private TextInputEditText tbxP2X;
-    private TextInputEditText tbxP2Y;
-    private TextInputEditText tbxMidX;
-    private TextInputEditText tbxMidY;
+    private EditText tbxP1X;
+    private EditText tbxP1Y;
+    private EditText tbxP2X;
+    private EditText tbxP2Y;
+    private EditText tbxMidX;
+    private EditText tbxMidY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +37,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        tbxP1X = (TextInputEditText) findViewById(R.id.tbx_p1_x);
-        tbxP1Y = (TextInputEditText) findViewById(R.id.tbx_p1_y);
-        tbxP2X = (TextInputEditText) findViewById(R.id.tbx_p2_x);
-        tbxP2Y = (TextInputEditText) findViewById(R.id.tbx_p2_y);
-        tbxMidX = (TextInputEditText) findViewById(R.id.tbx_mid_x);
-        tbxMidY = (TextInputEditText) findViewById(R.id.tbx_mid_y);
+        tbxP1X = (EditText) findViewById(R.id.tbx_p1_x);
+        tbxP1Y = (EditText) findViewById(R.id.tbx_p1_y);
+        tbxP2X = (EditText) findViewById(R.id.tbx_p2_x);
+        tbxP2Y = (EditText) findViewById(R.id.tbx_p2_y);
+        tbxMidX = (EditText) findViewById(R.id.tbx_mid_x);
+        tbxMidY = (EditText) findViewById(R.id.tbx_mid_y);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
