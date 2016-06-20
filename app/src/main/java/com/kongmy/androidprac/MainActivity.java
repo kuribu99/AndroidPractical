@@ -55,12 +55,11 @@ public class MainActivity extends AppCompatActivity {
                                                        Double.parseDouble(tbxP2X.getText().toString()),
                                                        Double.parseDouble(tbxP2Y.getText().toString()));
 
-                                               Line line = new Line();
-                                               line.setP1(p1);
-                                               line.setP2(p2);
+                                               Bundle bundle = new Bundle();
+                                               bundle.putSerializable(DisplayActivity.EXTRA_BUNDLE_POINT_1, p1);
+                                               bundle.putSerializable(DisplayActivity.EXTRA_BUNDLE_POINT_2, p2);
 
-                                               Point mid = line.getMidPoint();
-                                               startDisplayActivity(mid);
+                                               startDisplayActivity(bundle);
 
                                            } catch (NumberFormatException e) {
                                                showDismissibleSnackbar("Please fill in only numbers for point 1 and point 2");
@@ -83,9 +82,9 @@ public class MainActivity extends AppCompatActivity {
         snackbar.show();
     }
 
-    private void startDisplayActivity(Point mid) {
+    private void startDisplayActivity(Bundle b) {
         Intent intent = new Intent(this, DisplayActivity.class);
-        intent.putExtra(DisplayActivity.EXTRA_BUNDLE_MIDPOINT, mid);
+        intent.putExtras(b);
         startActivity(intent);
     }
 

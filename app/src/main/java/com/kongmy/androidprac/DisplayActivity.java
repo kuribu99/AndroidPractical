@@ -7,11 +7,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.EditText;
 
+import com.jamesooi.geometry.Line;
 import com.jamesooi.geometry.Point;
 
 public class DisplayActivity extends AppCompatActivity {
 
-    public static final String EXTRA_BUNDLE_MIDPOINT = "com.kongmy.androidprac.DisplayActivity.extra.bundle.midpoint";
+    public static final String EXTRA_BUNDLE_POINT_1 = "com.kongmy.androidprac.DisplayActivity.extra.bundle.point_1";
+    public static final String EXTRA_BUNDLE_POINT_2 = "com.kongmy.androidprac.DisplayActivity.extra.bundle.point_2";
     private EditText tbxMidX;
     private EditText tbxMidY;
 
@@ -26,9 +28,16 @@ public class DisplayActivity extends AppCompatActivity {
         tbxMidX = (EditText) findViewById(R.id.tbx_mid_x);
         tbxMidY = (EditText) findViewById(R.id.tbx_mid_y);
 
-        Point p = (Point) getIntent().getSerializableExtra(EXTRA_BUNDLE_MIDPOINT);
-        tbxMidX.setText(String.format("%.3f", p.getX()));
-        tbxMidY.setText(String.format("%.3f", p.getY()));
+        Bundle bundle = (Bundle) getIntent().getExtras();
+        Point p1 = (Point) bundle.getSerializable(EXTRA_BUNDLE_POINT_1);
+        Point p2 = (Point) bundle.getSerializable(EXTRA_BUNDLE_POINT_2);
+        Line line = new Line();
+        line.setP1(p1);
+        line.setP2(p2);
+        Point mid = line.getMidPoint();
+
+        tbxMidX.setText(String.format("%.3f", mid.getX()));
+        tbxMidY.setText(String.format("%.3f", mid.getY()));
     }
 
     @Override
