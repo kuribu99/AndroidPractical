@@ -9,18 +9,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 
 import com.jamesooi.geometry.Line;
 import com.jamesooi.geometry.Point;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextInputEditText tbxP1X;
-    private TextInputEditText tbxP1Y;
-    private TextInputEditText tbxP2X;
-    private TextInputEditText tbxP2Y;
-    private TextInputEditText tbxMidX;
-    private TextInputEditText tbxMidY;
+    private EditText tbxP1X;
+    private EditText tbxP1Y;
+    private EditText tbxP2X;
+    private EditText tbxP2Y;
+    private EditText tbxMidX;
+    private EditText tbxMidY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,12 +30,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        tbxP1X = (TextInputEditText) findViewById(R.id.tbx_p1_x);
-        tbxP1Y = (TextInputEditText) findViewById(R.id.tbx_p1_y);
-        tbxP2X = (TextInputEditText) findViewById(R.id.tbx_p2_x);
-        tbxP2Y = (TextInputEditText) findViewById(R.id.tbx_p2_y);
-        tbxMidX = (TextInputEditText) findViewById(R.id.tbx_mid_x);
-        tbxMidY = (TextInputEditText) findViewById(R.id.tbx_mid_y);
+        tbxP1X = (EditText) findViewById(R.id.tbx_p1_x);
+        tbxP1Y = (EditText) findViewById(R.id.tbx_p1_y);
+        tbxP2X = (EditText) findViewById(R.id.tbx_p2_x);
+        tbxP2Y = (EditText) findViewById(R.id.tbx_p2_y);
+        tbxMidX = (EditText) findViewById(R.id.tbx_mid_x);
+        tbxMidY = (EditText) findViewById(R.id.tbx_mid_y);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -109,11 +110,39 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        String text = "";
+        switch (id) {
+            case R.id.action_add:
+                text = "Add action";
+                break;
+
+            case R.id.action_subtract:
+                text = "Subtract action";
+                break;
+
+            case R.id.action_multiply:
+                text = "Multiply action";
+                break;
+
+            case R.id.action_divide:
+                text = "Divide action";
+                break;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
 
-        return super.onOptionsItemSelected(item);
+        final Snackbar snackbar = Snackbar.make(
+                findViewById(R.id.toolbar),
+                text,
+                Snackbar.LENGTH_LONG);
+        snackbar.setAction("Dismiss", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.show();
+        return true;
     }
 }
