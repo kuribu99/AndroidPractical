@@ -1,9 +1,9 @@
 package com.kongmy.androidprac;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -20,8 +20,6 @@ public class MainActivity extends AppCompatActivity {
     private EditText tbxP1Y;
     private EditText tbxP2X;
     private EditText tbxP2Y;
-    private EditText tbxMidX;
-    private EditText tbxMidY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +32,6 @@ public class MainActivity extends AppCompatActivity {
         tbxP1Y = (EditText) findViewById(R.id.tbx_p1_y);
         tbxP2X = (EditText) findViewById(R.id.tbx_p2_x);
         tbxP2Y = (EditText) findViewById(R.id.tbx_p2_y);
-        tbxMidX = (EditText) findViewById(R.id.tbx_mid_x);
-        tbxMidY = (EditText) findViewById(R.id.tbx_mid_y);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -46,54 +42,51 @@ public class MainActivity extends AppCompatActivity {
                                                || tbxP2X.getText().toString().isEmpty()
                                                || tbxP1Y.getText().toString().isEmpty()) {
 
-                                           tbxMidX.setText("-");
-                                           tbxMidY.setText("-");
 
-                                           final Snackbar snackbar = Snackbar.make(
-                                                   view,
-                                                   "Please fill up all the coordinates for point 1 and point 2",
-                                                   Snackbar.LENGTH_LONG);
-
-                                           snackbar.setAction("Dismiss", new View.OnClickListener() {
-                                               @Override
-                                               public void onClick(View view) {
-                                                   snackbar.dismiss();
-                                               }
-                                           });
-                                           snackbar.show();
+                                           showDismissibleSnackbar("Please fill up all the coordinates for point 1 and point 2");
 
                                        } else {
-                                           Point p1 = new Point(
-                                                   Double.parseDouble(tbxP1X.getText().toString()),
-                                                   Double.parseDouble(tbxP1Y.getText().toString()));
+                                           try {
+                                               Point p1 = new Point(
+                                                       Double.parseDouble(tbxP1X.getText().toString()),
+                                                       Double.parseDouble(tbxP1Y.getText().toString()));
 
-                                           Point p2 = new Point(
-                                                   Double.parseDouble(tbxP2X.getText().toString()),
-                                                   Double.parseDouble(tbxP2Y.getText().toString()));
+                                               Point p2 = new Point(
+                                                       Double.parseDouble(tbxP2X.getText().toString()),
+                                                       Double.parseDouble(tbxP2Y.getText().toString()));
 
-                                           Line line = new Line();
-                                           line.setP1(p1);
-                                           line.setP2(p2);
+                                               Line line = new Line();
+                                               line.setP1(p1);
+                                               line.setP2(p2);
 
-                                           Point mid = line.getMidPoint();
-                                           tbxMidX.setText(String.format("%.3f", mid.getX()));
-                                           tbxMidY.setText(String.format("%.3f", mid.getY()));
+                                               Point mid = line.getMidPoint();
+                                               startDisplayActivity(mid);
 
-                                           final Snackbar snackbar = Snackbar.make(
-                                                   view,
-                                                   "Midpoint coordinates updated",
-                                                   Snackbar.LENGTH_LONG);
-                                           snackbar.setAction("Dismiss", new View.OnClickListener() {
-                                               @Override
-                                               public void onClick(View view) {
-                                                   snackbar.dismiss();
-                                               }
-                                           });
-                                           snackbar.show();
+                                           } catch (NumberFormatException e) {
+                                               showDismissibleSnackbar("Please fill in only numbers for point 1 and point 2");
+                                           }
                                        }
                                    }
                                }
         );
+    }
+
+    private void showDismissibleSnackbar(String s) {
+        final Snackbar snackbar = Snackbar.make(findViewById(R.id.toolbar), s, Snackbar.LENGTH_LONG);
+
+        snackbar.setAction("Dismiss", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.show();
+    }
+
+    private void startDisplayActivity(Point mid) {
+        Intent intent = new Intent(this, DisplayActivity.class);
+        intent.putExtra(DisplayActivity.EXTRA_BUNDLE_MIDPOINT, mid);
+        startActivity(intent);
     }
 
     @Override
@@ -131,18 +124,7 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-
-        final Snackbar snackbar = Snackbar.make(
-                findViewById(R.id.toolbar),
-                text,
-                Snackbar.LENGTH_LONG);
-        snackbar.setAction("Dismiss", new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                snackbar.dismiss();
-            }
-        });
-        snackbar.show();
+        showDismissibleSnackbar(text);
         return true;
     }
 }
