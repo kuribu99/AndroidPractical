@@ -1,24 +1,24 @@
 package com.kongmy.androidprac;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-
-import com.jamesooi.geometry.Line;
-import com.jamesooi.geometry.Point;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText tbxP1X;
-    private EditText tbxP1Y;
-    private EditText tbxP2X;
-    private EditText tbxP2Y;
+    private TextView tbxName;
+    private TextView tbxHp;
+    private TextView tbxEmail;
+    private ImageButton btnCall;
+    private ImageButton btnEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,63 +27,42 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_holder, MainFragment.newInstance())
-                .commit();
+        final SalesAgent agent = new SalesAgent("Lee Xiao Ming", "+6012-3827289", "kuribu99@hotmail.com");
 
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        tbxName = (TextView) findViewById(R.id.tbx_name);
+        tbxHp = (TextView) findViewById(R.id.tbx_hp);
+        tbxEmail = (TextView) findViewById(R.id.tbx_email);
+        btnCall = (ImageButton) findViewById(R.id.btn_call);
+        btnEmail = (ImageButton) findViewById(R.id.btn_email);
 
-                                   @Override
-                                   public void onClick(View view) {
+        tbxName.setText(agent.getName());
+        tbxHp.setText(agent.getContactNumber());
+        tbxEmail.setText(agent.getEmail());
 
-                                       tbxP1X = (EditText) findViewById(R.id.tbx_p1_x);
-                                       tbxP1Y = (EditText) findViewById(R.id.tbx_p1_y);
-                                       tbxP2X = (EditText) findViewById(R.id.tbx_p2_x);
-                                       tbxP2Y = (EditText) findViewById(R.id.tbx_p2_y);
+        btnCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri uri = Uri.parse("tel:" + agent.getContactNumber());
+                Intent intent = new Intent(Intent.ACTION_DIAL, uri);
+                startActivity(intent);
+            }
+        });
 
-                                       if (tbxP1X.getText().toString().isEmpty()
-                                               || tbxP1Y.getText().toString().isEmpty()
-                                               || tbxP2X.getText().toString().isEmpty()
-                                               || tbxP1Y.getText().toString().isEmpty()) {
+        btnEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_EMAIL, agent.getEmail());
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Enquiry for Insurance");
+                intent.putExtra(Intent.EXTRA_TEXT, String.format(
+                        "Hi %s,\n\nI am interested to know more about insurance.\nThanks.\n\nRegards,\nMe",
+                        agent.getName()
+                ));
+                startActivity(intent);
+            }
+        });
 
-
-                                           showDismissibleSnackbar("Please fill up all the coordinates for point 1 and point 2");
-
-                                       } else {
-                                           try {
-                                               Point p1 = new Point(
-                                                       Double.parseDouble(tbxP1X.getText().toString()),
-                                                       Double.parseDouble(tbxP1Y.getText().toString()));
-
-                                               Point p2 = new Point(
-                                                       Double.parseDouble(tbxP2X.getText().toString()),
-                                                       Double.parseDouble(tbxP2Y.getText().toString()));
-
-                                               Point mid = new Line(p1, p2).getMidPoint();
-
-                                               getSupportFragmentManager().beginTransaction()
-                                                       .replace(R.id.fragment_holder, DisplayFragment.newInstance(mid, new DisplayFragment.OnDetachListener() {
-
-                                                           @Override
-                                                           public void onDetach() {
-                                                               fab.setEnabled(true);
-                                                           }
-
-                                                       }))
-                                                       .addToBackStack(null)
-                                                       .commit();
-
-                                               fab.setEnabled(false);
-
-
-                                           } catch (NumberFormatException e) {
-                                               showDismissibleSnackbar("Please fill in only numbers for point 1 and point 2");
-                                           }
-                                       }
-                                   }
-                               }
-        );
     }
 
     private void showDismissibleSnackbar(String s) {
