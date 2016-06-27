@@ -1,6 +1,5 @@
 package com.kongmy.androidprac;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -28,15 +27,21 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        tbxP1X = (EditText) findViewById(R.id.tbx_p1_x);
-        tbxP1Y = (EditText) findViewById(R.id.tbx_p1_y);
-        tbxP2X = (EditText) findViewById(R.id.tbx_p2_x);
-        tbxP2Y = (EditText) findViewById(R.id.tbx_p2_y);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_holder, MainFragment.newInstance())
+                .commit();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
+
                                    @Override
                                    public void onClick(View view) {
+
+                                       tbxP1X = (EditText) findViewById(R.id.tbx_p1_x);
+                                       tbxP1Y = (EditText) findViewById(R.id.tbx_p1_y);
+                                       tbxP2X = (EditText) findViewById(R.id.tbx_p2_x);
+                                       tbxP2Y = (EditText) findViewById(R.id.tbx_p2_y);
+
                                        if (tbxP1X.getText().toString().isEmpty()
                                                || tbxP1Y.getText().toString().isEmpty()
                                                || tbxP2X.getText().toString().isEmpty()
@@ -55,11 +60,22 @@ public class MainActivity extends AppCompatActivity {
                                                        Double.parseDouble(tbxP2X.getText().toString()),
                                                        Double.parseDouble(tbxP2Y.getText().toString()));
 
-                                               Bundle bundle = new Bundle();
-                                               bundle.putSerializable(DisplayActivity.EXTRA_BUNDLE_POINT_1, p1);
-                                               bundle.putSerializable(DisplayActivity.EXTRA_BUNDLE_POINT_2, p2);
+                                               Point mid = new Line(p1, p2).getMidPoint();
 
-                                               startDisplayActivity(bundle);
+                                               getSupportFragmentManager().beginTransaction()
+                                                       .replace(R.id.fragment_holder, DisplayFragment.newInstance(mid, new DisplayFragment.OnDetachListener() {
+
+                                                           @Override
+                                                           public void onDetach() {
+                                                               fab.setEnabled(true);
+                                                           }
+
+                                                       }))
+                                                       .addToBackStack(null)
+                                                       .commit();
+
+                                               fab.setEnabled(false);
+
 
                                            } catch (NumberFormatException e) {
                                                showDismissibleSnackbar("Please fill in only numbers for point 1 and point 2");
@@ -80,12 +96,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         snackbar.show();
-    }
-
-    private void startDisplayActivity(Bundle b) {
-        Intent intent = new Intent(this, DisplayActivity.class);
-        intent.putExtras(b);
-        startActivity(intent);
     }
 
     @Override
@@ -126,4 +136,5 @@ public class MainActivity extends AppCompatActivity {
         showDismissibleSnackbar(text);
         return true;
     }
+
 }

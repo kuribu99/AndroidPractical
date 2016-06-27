@@ -6,9 +6,18 @@
     android:fitsSystemWindows="true"
     tools:context="com.kongmy.androidprac.MainActivity">
 
-    <include layout="@layout/app_bar" />
+    <include layout="@layout/app_bar"
+        android:layout_above="@+id/fragment_holder"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent" />
 
-    <include layout="@layout/content_main" />
+    <FrameLayout
+        android:layout_marginTop="?attr/actionBarSize"
+        android:id="@id/fragment_holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </FrameLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
