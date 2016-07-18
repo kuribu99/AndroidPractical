@@ -7,84 +7,43 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:rowCount="4">
+    android:rowCount="2">
 
     <TextView
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_columnWeight="4"
+        android:layout_height="36dp"
+        android:layout_columnWeight="1"
         android:layout_marginBottom="16dp"
+        android:gravity="center_vertical|right"
         android:paddingRight="16dp"
-        android:text="Name:"
-        android:textAlignment="viewEnd" />
+        android:text="Start Service" />
+
+    <ImageButton
+        android:id="@+id/btn_start"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_columnWeight="1"
+        android:layout_marginRight="12dp"
+        android:background="@android:color/holo_green_light"
+        android:src="@android:drawable/ic_media_play" />
 
     <TextView
-        android:id="@+id/tbx_name"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_columnWeight="6"
-        android:text="-" />
-
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_columnWeight="4"
+        android:layout_height="36dp"
+        android:layout_columnWeight="1"
         android:layout_marginBottom="16dp"
+        android:gravity="center_vertical|right"
         android:paddingRight="16dp"
-        android:text="Contact Number:"
-        android:textAlignment="viewEnd" />
+        android:text="Stop Service" />
 
-    <TextView
-        android:id="@+id/tbx_hp"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_columnWeight="6"
-        android:text="-" />
 
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_columnWeight="4"
-        android:layout_marginBottom="16dp"
-        android:paddingRight="16dp"
-        android:text="Email Address:"
-        android:textAlignment="viewEnd" />
-
-    <TextView
-        android:id="@+id/tbx_email"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_columnWeight="6"
-        android:text="-" />
-
-    <LinearLayout
-        android:layout_height="0dp"
-        android:layout_width="wrap_content"
-        android:layout_columnWeight="4">
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_columnWeight="6">
-
-        <ImageButton
-            android:id="@+id/btn_call"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginRight="12dp"
-            android:background="?colorPrimary"
-            android:src="@android:drawable/ic_menu_call"/>
-
-        <ImageButton
-            android:id="@+id/btn_email"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginRight="12dp"
-            android:background="?colorPrimary"
-            android:src="@android:drawable/ic_dialog_email"/>
-
-    </LinearLayout>
+    <ImageButton
+        android:id="@+id/btn_stop"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_columnWeight="1"
+        android:layout_marginRight="12dp"
+        android:background="@android:color/holo_red_light"
+        android:src="@android:drawable/ic_lock_power_off" />
 
 </GridLayout>

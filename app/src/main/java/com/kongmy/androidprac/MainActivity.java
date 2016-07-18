@@ -1,7 +1,5 @@
 package com.kongmy.androidprac;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,15 +8,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
-
-    private TextView tbxName;
-    private TextView tbxHp;
-    private TextView tbxEmail;
-    private ImageButton btnCall;
-    private ImageButton btnEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,42 +18,25 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final SalesAgent agent = new SalesAgent("Lee Xiao Ming", "+6012-3827289", "kuribu99@hotmail.com");
+        startService(TimerService.newIntent(this));
 
-        tbxName = (TextView) findViewById(R.id.tbx_name);
-        tbxHp = (TextView) findViewById(R.id.tbx_hp);
-        tbxEmail = (TextView) findViewById(R.id.tbx_email);
-        btnCall = (ImageButton) findViewById(R.id.btn_call);
-        btnEmail = (ImageButton) findViewById(R.id.btn_email);
+        ImageButton btnStart = (ImageButton) findViewById(R.id.btn_start);
+        ImageButton btnStop = (ImageButton) findViewById(R.id.btn_stop);
 
-        tbxName.setText(agent.getName());
-        tbxHp.setText(agent.getContactNumber());
-        tbxEmail.setText(agent.getEmail());
-
-        btnCall.setOnClickListener(new View.OnClickListener() {
+        btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Uri uri = Uri.parse("tel:" + agent.getContactNumber());
-                Intent intent = new Intent(Intent.ACTION_DIAL, uri);
-                startActivity(intent);
+                startService(TimerService.newStartServiceIntent(getApplicationContext()));
             }
         });
 
-        btnEmail.setOnClickListener(new View.OnClickListener() {
+        btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("text/plain");
-                intent.putExtra(Intent.EXTRA_EMAIL, agent.getEmail());
-                intent.putExtra(Intent.EXTRA_SUBJECT, "Enquiry for Insurance");
-                intent.putExtra(Intent.EXTRA_TEXT, String.format(
-                        "Hi %s,\n\nI am interested to know more about insurance.\nThanks.\n\nRegards,\nMe",
-                        agent.getName()
-                ));
-                startActivity(intent);
+                showDismissibleSnackbar("Can't stop me now");
+                //startService(TimerService.newStopServiceIntent(getApplicationContext()));
             }
         });
-
     }
 
     private void showDismissibleSnackbar(String s) {
