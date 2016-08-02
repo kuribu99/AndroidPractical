@@ -1,25 +1,23 @@
 package com.kongmy.androidprac;
 
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
-import com.jamesooi.geometry.Line;
-import com.jamesooi.geometry.Point;
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
 
-public class MainActivity extends AppCompatActivity {
-
-    private EditText tbxP1X;
-    private EditText tbxP1Y;
-    private EditText tbxP2X;
-    private EditText tbxP2Y;
+    private EventListAdapter adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,46 +26,29 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        tbxP1X = (EditText) findViewById(R.id.tbx_p1_x);
-        tbxP1Y = (EditText) findViewById(R.id.tbx_p1_y);
-        tbxP2X = (EditText) findViewById(R.id.tbx_p2_x);
-        tbxP2Y = (EditText) findViewById(R.id.tbx_p2_y);
+        adapter = new EventListAdapter(this);
+        ListView listView = (ListView) findViewById(R.id.list_view_events);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
-                                   @Override
-                                   public void onClick(View view) {
-                                       if (tbxP1X.getText().toString().isEmpty()
-                                               || tbxP1Y.getText().toString().isEmpty()
-                                               || tbxP2X.getText().toString().isEmpty()
-                                               || tbxP1Y.getText().toString().isEmpty()) {
+            @Override
+            public void onClick(View v) {
+                startActivity(AddEventActivity.newIntent(getApplicationContext()));
+            }
+        });
 
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        onRefresh();
+    }
 
-                                           showDismissibleSnackbar("Please fill up all the coordinates for point 1 and point 2");
-
-                                       } else {
-                                           try {
-                                               Point p1 = new Point(
-                                                       Double.parseDouble(tbxP1X.getText().toString()),
-                                                       Double.parseDouble(tbxP1Y.getText().toString()));
-
-                                               Point p2 = new Point(
-                                                       Double.parseDouble(tbxP2X.getText().toString()),
-                                                       Double.parseDouble(tbxP2Y.getText().toString()));
-
-                                               Bundle bundle = new Bundle();
-                                               bundle.putSerializable(DisplayActivity.EXTRA_BUNDLE_POINT_1, p1);
-                                               bundle.putSerializable(DisplayActivity.EXTRA_BUNDLE_POINT_2, p2);
-
-                                               startDisplayActivity(bundle);
-
-                                           } catch (NumberFormatException e) {
-                                               showDismissibleSnackbar("Please fill in only numbers for point 1 and point 2");
-                                           }
-                                       }
-                                   }
-                               }
-        );
+    @Override
+    protected void onResume() {
+        super.onResume();
+        adapter.refresh();
     }
 
     private void showDismissibleSnackbar(String s) {
@@ -80,12 +61,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         snackbar.show();
-    }
-
-    private void startDisplayActivity(Bundle b) {
-        Intent intent = new Intent(this, DisplayActivity.class);
-        intent.putExtras(b);
-        startActivity(intent);
     }
 
     @Override
@@ -102,28 +77,52 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        String text = "";
         switch (id) {
-            case R.id.action_add:
-                text = "Add action";
-                break;
-
-            case R.id.action_subtract:
-                text = "Subtract action";
-                break;
-
-            case R.id.action_multiply:
-                text = "Multiply action";
-                break;
-
-            case R.id.action_divide:
-                text = "Divide action";
+            case R.id.actiom_settings:
+                startActivity(SettingActivity.newIntent(this));
                 break;
 
             default:
                 return super.onOptionsItemSelected(item);
         }
-        showDismissibleSnackbar(text);
         return true;
     }
+
+    @Override
+    public void onRefresh() {
+        adapter.refresh();
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, final long id) {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        adapter.deleteEvent(id);
+                        adapter.refresh();
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        dialog.dismiss();
+                        break;
+                }
+            }
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder
+                .setMessage("Do you want to delete this event?")
+                .setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+
+        return true;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        startActivity(ViewEventActivity.newIntent(this, id));
+    }
+
 }

@@ -4,27 +4,9 @@
     tools:context="com.kongmy.androidprac.MainActivity">
 
     <item
-        android:id="@+id/action_add"
+        android:id="@+id/actiom_settings"
         android:orderInCategory="100"
-        android:title="Add"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_subtract"
-        android:orderInCategory="100"
-        android:title="Subtract"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_multiply"
-        android:orderInCategory="100"
-        android:title="Multiply"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_divide"
-        android:orderInCategory="100"
-        android:title="Divide"
+        android:title="Settings"
         app:showAsAction="never" />
 
 </menu>
