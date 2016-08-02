@@ -6,18 +6,19 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
+public class MainActivity extends ThemedActivity implements SwipeRefreshLayout.OnRefreshListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
 
     private EventListAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setSupportActionBar(toolbar);
 
         adapter = new EventListAdapter(this);
-        ListView listView = (ListView) findViewById(R.id.list_view_events);
+        listView = (ListView) findViewById(R.id.list_view_events);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
         listView.setOnItemLongClickListener(this);
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     protected void onResume() {
         super.onResume();
-        adapter.refresh();
+        onRefresh();
     }
 
     private void showDismissibleSnackbar(String s) {
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void onRefresh() {
         adapter.refresh();
         swipeRefreshLayout.setRefreshing(false);
+        updateTheme();
     }
 
     @Override
@@ -123,6 +125,23 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         startActivity(ViewEventActivity.newIntent(this, id));
+    }
+
+    @Override
+    protected void updateTextColor(int color) {
+        for (int i = 0; i < listView.getChildCount(); i++) {
+            View view = listView.getChildAt(i);
+            TextView titleTextView = (TextView) view.findViewById(R.id.textview_title);
+            TextView dayTextView = (TextView) view.findViewById(R.id.textview_days);
+
+            titleTextView.setTextColor(color);
+            dayTextView.setTextColor(color);
+        }
+    }
+
+    @Override
+    protected void updateBackgroundColor(int color) {
+        findViewById(R.id.swipe_layout).setBackgroundColor(color);
     }
 
 }

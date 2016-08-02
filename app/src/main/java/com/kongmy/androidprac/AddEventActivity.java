@@ -1,22 +1,21 @@
 package com.kongmy.androidprac;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jamesooi.computations.Event;
 
 import java.util.Calendar;
 
-public class AddEventActivity extends AppCompatActivity {
+public class AddEventActivity extends ThemedActivity {
 
     private EditText editTextTitle;
     private Button btnEditDate;
@@ -78,6 +77,7 @@ public class AddEventActivity extends AppCompatActivity {
                 }
             }
         });
+        updateTheme();
     }
 
     private void showDismissibleSnackbar(String s) {
@@ -90,5 +90,16 @@ public class AddEventActivity extends AppCompatActivity {
             }
         });
         snackbar.show();
+    }
+
+    @Override
+    protected void updateTextColor(int color) {
+        ((TextView) findViewById(R.id.textview_title)).setTextColor(color);
+        ((TextView) findViewById(R.id.textview_date)).setTextColor(color);
+    }
+
+    @Override
+    protected void updateBackgroundColor(int color) {
+        findViewById(R.id.background).setBackgroundColor(color);
     }
 }

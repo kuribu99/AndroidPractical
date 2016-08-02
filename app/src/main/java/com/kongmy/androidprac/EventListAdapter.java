@@ -24,7 +24,6 @@ public class EventListAdapter extends BaseAdapter {
         refresh();
     }
 
-
     public void refresh() {
         DatabaseHelper databaseHelper = new DatabaseHelper(context);
         eventList = databaseHelper.findAllEvents();
