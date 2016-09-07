@@ -1,34 +1,41 @@
 package com.kongmy.androidprac;
 
-import android.os.AsyncTask;
+import android.content.Intent;
+import android.content.IntentSender;
+import android.location.Location;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputEditText;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.Button;
+import android.widget.TextView;
 
-import org.json.JSONObject;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
+public class MainActivity extends AppCompatActivity
+        implements View.OnClickListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        ResultCallback<LocationSettingsResult>,
+        LocationListener {
 
-public class MainActivity extends AppCompatActivity {
-
-    private EditText tbxP1X;
-    private EditText tbxP1Y;
-    private EditText tbxP2X;
-    private EditText tbxP2Y;
-    private EditText tbxMidX;
-    private EditText tbxMidY;
+    private static final int REQUEST_CHECK_SETTINGS = 9901;
+    private GoogleApiClient mGoogleApiClient;
+    private Button mButtonRefresh;
+    private TextView mTextViewLongtitude;
+    private TextView mTextViewLatitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,77 +44,54 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        tbxP1X = (EditText) findViewById(R.id.tbx_p1_x);
-        tbxP1Y = (EditText) findViewById(R.id.tbx_p1_y);
-        tbxP2X = (EditText) findViewById(R.id.tbx_p2_x);
-        tbxP2Y = (EditText) findViewById(R.id.tbx_p2_y);
-        tbxMidX = (EditText) findViewById(R.id.tbx_mid_x);
-        tbxMidY = (EditText) findViewById(R.id.tbx_mid_y);
+        mButtonRefresh = (Button) findViewById(R.id.button_refresh);
+        mTextViewLongtitude = (TextView) findViewById(R.id.longtitude);
+        mTextViewLatitude = (TextView) findViewById(R.id.latitude);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-                                   @Override
-                                   public void onClick(View view) {
-                                       if (tbxP1X.getText().toString().isEmpty()
-                                               || tbxP1Y.getText().toString().isEmpty()
-                                               || tbxP2X.getText().toString().isEmpty()
-                                               || tbxP1Y.getText().toString().isEmpty()) {
+        mButtonRefresh.setOnClickListener(this);
+    }
 
-                                           tbxMidX.setText("-");
-                                           tbxMidY.setText("-");
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-                                           final Snackbar snackbar = Snackbar.make(
-                                                   view,
-                                                   "Please fill up all the coordinates for \nPoint 1 and Point 2",
-                                                   Snackbar.LENGTH_LONG);
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
 
-                                           snackbar.setAction("Dismiss", new View.OnClickListener() {
-                                               @Override
-                                               public void onClick(View view) {
-                                                   snackbar.dismiss();
-                                               }
-                                           });
-                                           snackbar.show();
+            mGoogleApiClient.connect();
+        }
+    }
 
-                                       } else {
-                                           HttpAsyncTask task = new HttpAsyncTask();
-                                           try {
-                                               String result = task.execute(
-                                                       tbxP1X.getText().toString(),
-                                                       tbxP1Y.getText().toString(),
-                                                       tbxP2X.getText().toString(),
-                                                       tbxP2Y.getText().toString()).get();
+    private void startReceiveUpdate() {
+        LocationRequest request = createLocationRequest();
+        try {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, request, (LocationListener) this);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+    }
 
-                                               if (result == null || result.isEmpty() || result.equals("null")) {
-                                                   tbxMidX.setText("-");
-                                                   tbxMidY.setText("-");
-                                               }
-                                               JSONObject obj = new JSONObject(result);
-                                               tbxMidX.setText(String.format("%.3f", obj.getDouble("x")));
-                                               tbxMidY.setText(String.format("%.3f", obj.getDouble("y")));
+    private LocationRequest createLocationRequest() {
+        return LocationRequest.create()
+                .setInterval(5000)
+                .setMaxWaitTime(4000)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setFastestInterval(1000);
+    }
 
-                                           } catch (Exception e) {
-                                               e.printStackTrace();
+    @Override
+    protected void onStop() {
+        super.onStop();
 
-                                               tbxMidX.setText("-");
-                                               tbxMidY.setText("-");
-                                           }
-
-                                           final Snackbar snackbar = Snackbar.make(
-                                                   view,
-                                                   "Midpoint coordinates updated",
-                                                   Snackbar.LENGTH_LONG);
-                                           snackbar.setAction("Dismiss", new View.OnClickListener() {
-                                               @Override
-                                               public void onClick(View view) {
-                                                   snackbar.dismiss();
-                                               }
-                                           });
-                                           snackbar.show();
-                                       }
-                                   }
-                               }
-        );
+        if (mGoogleApiClient != null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            mGoogleApiClient.disconnect();
+            mGoogleApiClient = null;
+        }
     }
 
     @Override
@@ -132,45 +116,78 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
+    @Override
+    public void onClick(View v) {
+        updateLocation();
+    }
 
-        @Override
-        protected String doInBackground(String... strings) {
-            if (strings.length != 4) return null;
-            String param = String.format(
-                    "p1x=%s&p1y=%s&p2x=%s&p2y=%s",
-                    strings[0], strings[1],
-                    strings[2], strings[3]
-            );
-            try {
-                URL url = new URL("http://192.168.56.2:8080/midpoint");
+    private void updateLocation() {
+        try {
+            Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            if (lastLocation != null)
+                updateLocation(lastLocation);
 
-                HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-                httpConn.setAllowUserInteraction(false);
-                httpConn.setInstanceFollowRedirects(true);
-                httpConn.setDoInput(true);
-                httpConn.setDoOutput(true);
-                httpConn.setRequestMethod("POST");
-
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(httpConn.getOutputStream()));
-                writer.write(param);
-                writer.flush();
-                writer.close();
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
-                StringBuilder builder = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line).append("\n");
-                }
-
-                return builder.toString();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
+        } catch (SecurityException e) {
+            e.printStackTrace();
         }
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        mButtonRefresh.setEnabled(true);
+
+        LocationRequest request = createLocationRequest();
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(request);
+        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+        result.setResultCallback(this);
+
+        updateLocation();
+        startReceiveUpdate();
+    }
+
+    private void updateLocation(Location lastLocation) {
+        mTextViewLongtitude.setText(String.valueOf(lastLocation.getLongitude()));
+        mTextViewLatitude.setText(String.valueOf(lastLocation.getLatitude()));
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        mButtonRefresh.setEnabled(false);
+        mTextViewLongtitude.setText(R.string.msg_not_available);
+        mTextViewLatitude.setText(R.string.msg_not_available);
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        mButtonRefresh.setEnabled(false);
+        mTextViewLongtitude.setText(R.string.msg_not_available);
+        mTextViewLatitude.setText(R.string.msg_not_available);
+    }
+
+    @Override
+    public void onResult(@NonNull LocationSettingsResult locationSettingsResult) {
+        Status status = locationSettingsResult.getStatus();
+        if (status.isSuccess()) {
+        } else {
+            try {
+                status.startResolutionForResult(this, REQUEST_CHECK_SETTINGS);
+            } catch (IntentSender.SendIntentException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        updateLocation(location);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CHECK_SETTINGS && resultCode == RESULT_OK) {
+            startReceiveUpdate();
+        }
+    }
 }
